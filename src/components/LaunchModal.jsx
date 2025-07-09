@@ -1,71 +1,91 @@
-import Modal from 'react-modal';
-  import { Box, Typography, Button, Link } from '@mui/material';
+import React from 'react';
+import { Dialog, DialogTitle, DialogContent, Typography, IconButton, Chip, Table, TableBody, TableRow, TableCell, Box, Divider } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-  Modal.setAppElement('#root');
+function LaunchModal({ open, handleClose, launch }) {
+  if (!launch) return null;
 
-  function LaunchModal({ isOpen, onRequestClose, launch }) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onRequestClose={onRequestClose}
-        style={{
-          content: {
-            top: '50%',
-            left: '50%',
-            right: 'auto',
-            bottom: 'auto',
-            transform: 'translate(-50%, -50%)',
-            maxWidth: '90%',
-            width: '600px',
-            background: '#2e2e2e', // Lighter dark gray for better contrast
-            borderRadius: '8px',
-            padding: '24px',
-            border: 'none',
-            maxHeight: '80vh', // Limit height for scrollability
-            overflowY: 'auto', // Enable vertical scrolling
-          },
-          overlay: {
-            backgroundColor: 'rgba(0, 0, 0, 0.75)', // Maintain dark overlay
-            zIndex: 1000,
-          },
-        }}
-      >
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          <Typography variant="h5" gutterBottom sx={{ textAlign: 'center', color: '#ffffff' }}>
-            {launch.name}
-          </Typography>
-          <img
-            src={launch.links?.patch?.small || 'https://via.placeholder.com/150'}
-            alt={launch.name}
-            style={{ width: '100%', height: 'auto', borderRadius: '4px', objectFit: 'contain' }}
-          />
-          <Typography variant="body1" sx={{ color: '#e0e0e0' }}>
-            <strong>Date:</strong> {new Date(launch.date_utc).toLocaleString()}
-          </Typography>
-          <Typography
-            variant="body1"
-            sx={{ color: '#e0e0e0', maxHeight: '200px', overflowY: 'auto' }} // Scrollable description
-          >
-            <strong>Details:</strong> {launch.details || 'No details available.'}
-          </Typography>
-          {launch.links?.webcast && (
-            <Typography variant="body1" sx={{ color: '#e0e0e0' }}>
-              <strong>Webcast:</strong>{' '}
-              <Link href={launch.links.webcast} target="_blank" color="primary">
-                Watch
-              </Link>
-            </Typography>
-          )}
-          <Button
-            variant="contained"
-            onClick={onRequestClose}
-            sx={{ mt: 2, alignSelf: 'center', width: '200px', backgroundColor: '#bb86fc', color: '#000000' }}
-          >
-            Close
-          </Button>
+  const {
+    links,
+    name,
+    success,
+    details,
+    date_utc,
+    rocket,
+    payloads,
+    launchpad,
+    flight_number
+  } = launch;
+
+  const generatedDescription = details || `This mission, ${name}, was launched by SpaceX using the ${rocket?.name || 'rocket'} from ${launchpad?.name || 'an unknown launchpad'} on ${new Date(date_utc).toLocaleDateString()}. The mission's primary objective was to deploy payloads into ${payloads?.[0]?.orbit || 'their designated orbit'}.`;
+
+  return (
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+      <DialogTitle>
+        <Box display="flex" alignItems="center" justifyContent="space-between">
+          <Box display="flex" alignItems="center" gap={2}>
+            {links.patch.small && (
+              <img src={links.patch.small} alt={name} style={{ width: 50, height: 50, borderRadius: 8 }} />
+            )}
+            <Box>
+              <Typography variant="h6" fontWeight="bold">{name}</Typography>
+              <Chip
+                label={success ? 'Success' : launch.upcoming ? 'Upcoming' : 'Failed'}
+                color={success ? 'success' : launch.upcoming ? 'warning' : 'error'}
+                size="small"
+              />
+            </Box>
+          </Box>
+          <IconButton onClick={handleClose}>
+            <CloseIcon />
+          </IconButton>
         </Box>
-      </Modal>
-    );
-  }
+      </DialogTitle>
+      <Divider />
+      <DialogContent>
+        <Typography variant="body1" sx={{ mb: 2, lineHeight: 1.6 }}>
+          {generatedDescription}{' '}
+          {links.wikipedia && (
+            <a href={links.wikipedia} target="_blank" rel="noopener noreferrer" style={{ color: '#1976d2', textDecoration: 'underline' }}>
+              Learn more
+            </a>
+          )}
+        </Typography>
+        <Table size="small">
+          <TableBody>
+            <TableRow>
+              <TableCell>Flight Number</TableCell>
+              <TableCell>{flight_number}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Mission Name</TableCell>
+              <TableCell>{name}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Rocket</TableCell>
+              <TableCell>{rocket?.name || rocket}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Payloads</TableCell>
+              <TableCell>{payloads?.map(p => p.name).join(', ') || '-'}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Launchpad</TableCell>
+              <TableCell>{launchpad?.name || launchpad}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Launch Date</TableCell>
+              <TableCell>{new Date(date_utc).toUTCString()}</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Status</TableCell>
+              <TableCell>{success ? 'Success' : launch.upcoming ? 'Upcoming' : 'Failed'}</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
-  export default LaunchModal;
+export default LaunchModal;

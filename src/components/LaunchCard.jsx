@@ -5,7 +5,7 @@ import { Card, CardMedia, CardContent, Typography, CardActionArea } from '@mui/m
     console.log('Image URL for', launch.name, ':', imageUrl);
 
     return (
-      <Card sx={{ maxWidth: 345, backgroundColor: '#1e1e1e', color: 'white', margin: '8px' }}>
+      <Card sx={{ maxWidth: 345, margin: '8px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)' }}>
         <CardActionArea onClick={() => onClick(launch)}>
           <CardMedia
             component="img"
@@ -16,14 +16,11 @@ import { Card, CardMedia, CardContent, Typography, CardActionArea } from '@mui/m
             onError={(e) => { e.target.src = 'https://via.placeholder.com/150'; }}
           />
           <CardContent>
-            <Typography gutterBottom variant="h6" component="div">
+            <Typography gutterBottom variant="h6" component="div" sx={{ color: '#000000' }}>
               {launch.name}
             </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+            <Typography variant="body2" sx={{ color: '#666666', mb: 1 }}>
               {new Date(launch.date_utc).toLocaleDateString()}
-            </Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-              {launch.details || 'No details available.'}
             </Typography>
           </CardContent>
         </CardActionArea>
